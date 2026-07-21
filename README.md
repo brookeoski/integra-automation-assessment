@@ -13,6 +13,18 @@ npx playwright install --with-deps
 cp .env.example .env
 ```
 
+### API tests (GoRest)
+
+The API suite runs against [gorest.co.in](https://gorest.co.in/), which requires a personal
+access token:
+
+1. Sign in at [gorest.co.in](https://gorest.co.in/) and generate an access token.
+2. In `.env`, set:
+   ```
+   BASE_URL=https://gorest.co.in
+   GOREST_TOKEN=<your token>
+   ```
+
 ## Running Locally
 
 ```bash

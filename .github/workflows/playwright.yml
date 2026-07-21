@@ -12,7 +12,8 @@ jobs:
     timeout-minutes: 5
     env:
       CI: true
-      API_BASE_URL: ${{ secrets.API_BASE_URL }}
+      BASE_URL: ${{ secrets.BASE_URL }}
+      GOREST_TOKEN: ${{ secrets.GOREST_TOKEN }}
       UI_BASE_URL: ${{ secrets.UI_BASE_URL }}
 
     steps:

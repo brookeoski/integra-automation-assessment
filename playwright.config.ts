@@ -19,7 +19,10 @@ export default defineConfig({
       name: 'api',
       testDir: './tests/api',
       use: {
-        baseURL: process.env.API_BASE_URL,
+        baseURL: process.env.BASE_URL,
+        extraHTTPHeaders: {
+          Authorization: `Bearer ${process.env.GOREST_TOKEN}`,
+        },
       },
     },
     {
