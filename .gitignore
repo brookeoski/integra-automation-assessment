@@ -5,6 +5,7 @@ dist/
 /test-results/
 /playwright-report/
 /playwright/.cache/
+/playwright/.auth/
 /blob-report/
 
 # Env

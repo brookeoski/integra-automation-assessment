@@ -25,6 +25,20 @@ access token:
    GOREST_TOKEN=<your token>
    ```
 
+### UI tests (Sauce Demo)
+
+The UI suite runs against [saucedemo.com](https://www.saucedemo.com/). In `.env`, set:
+
+```
+UI_BASE_URL=https://www.saucedemo.com
+SAUCE_USERNAME=standard_user
+SAUCE_PASSWORD=secret_sauce
+```
+
+A `setup` project logs in once and saves authenticated browser state to
+`playwright/.auth/` (git-ignored). The `ui` project depends on `setup` and
+reuses that state automatically, so UI tests start already authenticated.
+
 ## Running Locally
 
 ```bash

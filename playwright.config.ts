@@ -13,6 +13,7 @@ export default defineConfig({
   reporter: 'html',
   use: {
     trace: 'retain-on-failure',
+    testIdAttribute: 'data-test',
   },
   projects: [
     {
@@ -26,11 +27,22 @@ export default defineConfig({
       },
     },
     {
-      name: 'ui',
+      name: 'setup',
       testDir: './tests/ui',
+      testMatch: /auth\.setup\.ts/,
       use: {
         ...devices['Desktop Chrome'],
         baseURL: process.env.UI_BASE_URL,
+      },
+    },
+    {
+      name: 'ui',
+      testDir: './tests/ui',
+      dependencies: ['setup'],
+      use: {
+        ...devices['Desktop Chrome'],
+        baseURL: process.env.UI_BASE_URL,
+        storageState: 'playwright/.auth/user.json',
       },
     },
   ],
