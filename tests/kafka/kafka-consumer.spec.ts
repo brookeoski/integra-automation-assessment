@@ -1,7 +1,7 @@
 import { Kafka } from 'kafkajs';
 import { randomUUID } from 'node:crypto';
 import { test, expect } from '@playwright/test';
-import { buildUniqueMessage, buildUniqueTopic, createTestTopic } from './kafka.data';
+import { buildUniqueMessage, buildUniqueTopic } from './kafka.data';
 
 test.describe('Kafka Consumer: a subscribed consumer receives exactly the message published for it', () => {
   test('TC_KAFKA_003 - a consumer in a unique group receives the expected message', async () => {
@@ -22,13 +22,14 @@ test.describe('Kafka Consumer: a subscribed consumer receives exactly the messag
     });
 
     try {
-      await test.step('Create the topic and wait for its leader to be elected', async () => {
-        await createTestTopic(kafka, topic);
-      });
-
       await test.step('Subscribe a consumer, using a unique consumer group, to the topic', async () => {
         await consumer.connect();
-        await consumer.subscribe({ topic, fromBeginning: true });
+
+        // A newly auto-created topic can briefly report no leader on this
+        // connection; retrying the subscribe absorbs that without an arbitrary wait.
+        await expect(async () => {
+          await consumer.subscribe({ topic, fromBeginning: true });
+        }).toPass({ timeout: 30_000 });
 
         await consumer.run({
           eachMessage: async ({ message: record }) => {
@@ -43,7 +44,10 @@ test.describe('Kafka Consumer: a subscribed consumer receives exactly the messag
 
       await test.step('Publish a unique message to the topic', async () => {
         await producer.connect();
-        await producer.send({ topic, messages: [{ value: JSON.stringify(message) }] });
+
+        await expect(async () => {
+          await producer.send({ topic, messages: [{ value: JSON.stringify(message) }] });
+        }).toPass({ timeout: 30_000 });
       });
 
       await test.step('Wait for the consumer to receive the expected message', async () => {
