@@ -6,7 +6,7 @@ import { LoginPage } from './pages/LoginPage';
 test.use({ storageState: { cookies: [], origins: [] } });
 
 test.describe('Login: a shopper cannot access the store with the wrong password', () => {
-  test('a valid username with an incorrect password is rejected with an error message', async ({ page }) => {
+  test('TC_UI_004 - a valid username with an incorrect password is rejected with an error message', async ({ page }) => {
     const loginPage = new LoginPage(page);
 
     await test.step('Attempt to log in with a valid username and an incorrect password', async () => {

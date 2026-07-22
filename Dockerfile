@@ -7,4 +7,4 @@ RUN npm ci
 
 COPY . .
 
-CMD ["npx", "playwright", "test"]
+CMD ["npx", "playwright", "test", "--project=api", "--project=ui"]

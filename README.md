@@ -39,12 +39,31 @@ A `setup` project logs in once and saves authenticated browser state to
 `playwright/.auth/` (git-ignored). The `ui` project depends on `setup` and
 reuses that state automatically, so UI tests start already authenticated.
 
+### Kafka tests
+
+The Kafka suite runs against a local single-broker Kafka (KRaft mode) started
+with Docker Compose. A `kafka-setup` project starts it and waits until it
+accepts connections; a `kafka-teardown` project stops it afterwards. Both run
+automatically — no manual `docker compose` commands are needed:
+
+```bash
+npm run test:kafka # starts Kafka, runs the producer and consumer tests, stops Kafka
+```
+
+In `.env`, the broker is configured with:
+
+```
+KAFKA_BROKER_URL=localhost:9092
+KAFKA_TOPIC=integra-assessment
+```
+
 ## Running Locally
 
 ```bash
-npm test          # all tests, 4 workers
+npm test          # all tests, 4 workers (starts and stops Kafka automatically)
 npm run test:api  # API project only
 npm run test:ui   # UI project only
+npm run test:kafka # Kafka project only (starts and stops Kafka automatically)
 npm run report    # open last HTML report
 ```
 
@@ -54,6 +73,10 @@ npm run report    # open last HTML report
 docker build -t integra-automation .
 docker run --rm --env-file .env -v "$(pwd)/playwright-report:/app/playwright-report" integra-automation
 ```
+
+This image runs the `api` and `ui` projects, which reach their targets over the
+network. The `kafka` project needs a broker on `localhost:9092` (see
+[Kafka tests](#kafka-tests)), so it runs via `npm run test:kafka` instead.
 
 ## Running in GitHub Actions
 

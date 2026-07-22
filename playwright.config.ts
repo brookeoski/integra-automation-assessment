@@ -24,6 +24,8 @@ export default defineConfig({
         extraHTTPHeaders: {
           Authorization: `Bearer ${process.env.GOREST_TOKEN}`,
         },
+        // Traces would capture the Authorization header above; keep this project trace-free.
+        trace: 'off',
       },
     },
     {
@@ -34,6 +36,23 @@ export default defineConfig({
         ...devices['Desktop Chrome'],
         baseURL: process.env.UI_BASE_URL,
       },
+    },
+    {
+      name: 'kafka-setup',
+      testDir: './tests/kafka',
+      testMatch: /kafka\.setup\.ts/,
+      teardown: 'kafka-teardown',
+    },
+    {
+      name: 'kafka-teardown',
+      testDir: './tests/kafka',
+      testMatch: /kafka\.teardown\.ts/,
+    },
+    {
+      name: 'kafka',
+      testDir: './tests/kafka',
+      testMatch: /kafka-(producer|consumer)\.spec\.ts/,
+      dependencies: ['kafka-setup'],
     },
     {
       name: 'ui',

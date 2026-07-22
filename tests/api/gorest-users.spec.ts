@@ -6,35 +6,43 @@ test.describe('GoRest Users API: a user can be created, retrieved, and deleted',
     request,
   }) => {
     const payload = buildUniqueUser();
-    let userId: number;
+    let userId: number | undefined;
 
-    await test.step('Create a new user using every field the API accepts', async () => {
-      const createResponse = await request.post('/public/v2/users', { data: payload });
+    try {
+      await test.step('Create a new user using every field the API accepts', async () => {
+        const createResponse = await request.post('/public/v2/users', { data: payload });
 
-      await test.step('Expect the user to be created successfully with the submitted data', () => {
-        expect(createResponse.status()).toBe(201);
+        await test.step('Expect the user to be created successfully with the submitted data', () => {
+          expect(createResponse.status()).toBe(201);
+        });
+
+        const createdUser = await createResponse.json();
+        userId = createdUser.id;
+
+        await test.step('Expect the created user to be returned with the submitted data', () => {
+          expect(createdUser).toMatchObject({ id: expect.any(Number), ...payload });
+        });
       });
 
-      const createdUser = await createResponse.json();
-      await test.step('Expect the created user to be returned with the submitted data', () => {
-        expect(createdUser).toMatchObject({ id: expect.any(Number), ...payload });
+      await test.step('Retrieve the user that was just created', async () => {
+        const getResponse = await request.get(`/public/v2/users/${userId}`);
+
+        await test.step('Expect the user to be found', () => {
+          expect(getResponse.status()).toBe(200);
+        });
+
+        const fetchedUser = await getResponse.json();
+        await test.step('Expect the retrieved user to match what was created', () => {
+          expect(fetchedUser).toMatchObject({ id: userId, ...payload });
+        });
       });
-
-      userId = createdUser.id;
-    });
-
-    await test.step('Retrieve the user that was just created', async () => {
-      const getResponse = await request.get(`/public/v2/users/${userId}`);
-
-      await test.step('Expect the user to be found', () => {
-        expect(getResponse.status()).toBe(200);
-      });
-
-      const fetchedUser = await getResponse.json();
-      await test.step('Expect the retrieved user to match what was created', () => {
-        expect(fetchedUser).toMatchObject({ id: userId, ...payload });
-      });
-    });
+    } catch (error) {
+      // Best-effort cleanup: don't let a cleanup-side failure hide this error.
+      if (userId) {
+        await request.delete(`/public/v2/users/${userId}`).catch(() => {});
+      }
+      throw error;
+    }
 
     await test.step('Delete the user', async () => {
       const deleteResponse = await request.delete(`/public/v2/users/${userId}`);

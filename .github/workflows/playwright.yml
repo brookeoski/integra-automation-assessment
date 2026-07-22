@@ -9,12 +9,14 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    timeout-minutes: 8
     env:
       CI: true
       BASE_URL: ${{ secrets.BASE_URL }}
       GOREST_TOKEN: ${{ secrets.GOREST_TOKEN }}
       UI_BASE_URL: ${{ secrets.UI_BASE_URL }}
+      KAFKA_BROKER_URL: localhost:9092
+      KAFKA_TOPIC: integra-assessment
 
     steps:
       - uses: actions/checkout@v4
