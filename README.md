@@ -8,9 +8,11 @@ API and UI test engineering practices.
 ## Setup
 
 ```bash
-npm ci
-npx playwright install --with-deps
-cp .env.example .env
+#copy .env.example into a new .env file and fill in missing credentials
+npm install
+npx playwright install
+#run tests
+npx playwright test
 ```
 
 ### API tests (GoRest)
