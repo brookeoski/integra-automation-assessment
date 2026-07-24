@@ -17,7 +17,7 @@ jobs:
     timeout-minutes: 5
     env:
       CI: "true"
-      BASE_URL: https://gorest.co.in
+      BASE_URL: ${{ secrets.BASE_URL }}
       GOREST_TOKEN: ${{ secrets.GOREST_TOKEN }}
       PLAYWRIGHT_BLOB_OUTPUT_DIR: blob-report-api
     steps:
@@ -61,9 +61,9 @@ jobs:
     timeout-minutes: 5
     env:
       CI: "true"
-      UI_BASE_URL: https://www.saucedemo.com
-      SAUCE_USERNAME: standard_user
-      SAUCE_PASSWORD: secret_sauce
+      UI_BASE_URL: ${{ secrets.UI_BASE_URL }}
+      SAUCE_USERNAME: ${{ secrets.SAUCE_USERNAME }}
+      SAUCE_PASSWORD: ${{ secrets.SAUCE_PASSWORD }}
       PLAYWRIGHT_BLOB_OUTPUT_DIR: blob-report-ui
     steps:
       - uses: actions/checkout@v4
@@ -109,8 +109,8 @@ jobs:
     timeout-minutes: 8
     env:
       CI: "true"
-      KAFKA_BROKER_URL: localhost:9092
-      KAFKA_TOPIC: integra-assessment
+      KAFKA_BROKER_URL: ${{ secrets.KAFKA_BROKER_URL }}
+      KAFKA_TOPIC: ${{ secrets.KAFKA_TOPIC }}
       PLAYWRIGHT_BLOB_OUTPUT_DIR: blob-report-kafka
     steps:
       - uses: actions/checkout@v4

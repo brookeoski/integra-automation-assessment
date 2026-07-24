@@ -1,6 +1,5 @@
 import { defineConfig, devices } from '@playwright/test';
 import * as dotenv from 'dotenv';
-import { requireEnv } from './tests/env';
 
 dotenv.config();
 
@@ -21,9 +20,9 @@ export default defineConfig({
       name: 'api',
       testDir: './tests/api',
       use: {
-        baseURL: requireEnv('BASE_URL'),
+        baseURL: process.env.BASE_URL,
         extraHTTPHeaders: {
-          Authorization: `Bearer ${requireEnv('GOREST_TOKEN')}`,
+          Authorization: `Bearer ${process.env.GOREST_TOKEN ?? ''}`,
         },
         // Traces would capture the Authorization header above; keep this project trace-free.
         trace: 'off',
@@ -35,7 +34,7 @@ export default defineConfig({
       testMatch: /auth\.setup\.ts/,
       use: {
         ...devices['Desktop Chrome'],
-        baseURL: requireEnv('UI_BASE_URL'),
+        baseURL: process.env.UI_BASE_URL,
       },
     },
     {
@@ -61,7 +60,7 @@ export default defineConfig({
       dependencies: ['setup'],
       use: {
         ...devices['Desktop Chrome'],
-        baseURL: requireEnv('UI_BASE_URL'),
+        baseURL: process.env.UI_BASE_URL,
         storageState: 'playwright/.auth/user.json',
       },
     },
