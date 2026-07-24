@@ -1,5 +1,6 @@
 import { test, expect } from '@playwright/test';
 import { LoginPage } from './pages/LoginPage';
+import { requireEnv } from '../env';
 
 // Login itself is under test here, so this opts out of the project's saved
 // authenticated state rather than starting from an already logged-in session.
@@ -10,7 +11,7 @@ test.describe('Login: a shopper cannot access the store with the wrong password'
     const loginPage = new LoginPage(page);
 
     await test.step('Attempt to log in with a valid username and an incorrect password', async () => {
-      await loginPage.login(process.env.SAUCE_USERNAME!, 'wrong_password');
+      await loginPage.login(requireEnv('SAUCE_USERNAME'), 'wrong_password');
 
       await test.step('Expect an error message to be shown and the shopper to remain on the login page', async () => {
         await expect(page.getByTestId('error')).toHaveText(

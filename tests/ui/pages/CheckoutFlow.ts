@@ -1,7 +1,7 @@
 import { Page } from '@playwright/test';
 import { CustomerInfo } from '../checkout.data';
 
-export class CheckoutPage {
+export class CheckoutFlow {
   constructor(private readonly page: Page) {}
 
   async addProductToCart(productSlug: string) {

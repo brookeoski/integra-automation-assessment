@@ -1,5 +1,6 @@
 import { defineConfig, devices } from '@playwright/test';
 import * as dotenv from 'dotenv';
+import { requireEnv } from './tests/env';
 
 dotenv.config();
 
@@ -10,7 +11,7 @@ export default defineConfig({
   retries: process.env.CI ? 1 : 0,
   workers: 4,
   globalTimeout: 5 * 60 * 1000,
-  reporter: 'html',
+  reporter: process.env.CI ? 'blob' : 'html',
   use: {
     trace: 'retain-on-failure',
     testIdAttribute: 'data-test',
@@ -20,9 +21,9 @@ export default defineConfig({
       name: 'api',
       testDir: './tests/api',
       use: {
-        baseURL: process.env.BASE_URL,
+        baseURL: requireEnv('BASE_URL'),
         extraHTTPHeaders: {
-          Authorization: `Bearer ${process.env.GOREST_TOKEN}`,
+          Authorization: `Bearer ${requireEnv('GOREST_TOKEN')}`,
         },
         // Traces would capture the Authorization header above; keep this project trace-free.
         trace: 'off',
@@ -34,7 +35,7 @@ export default defineConfig({
       testMatch: /auth\.setup\.ts/,
       use: {
         ...devices['Desktop Chrome'],
-        baseURL: process.env.UI_BASE_URL,
+        baseURL: requireEnv('UI_BASE_URL'),
       },
     },
     {
@@ -60,7 +61,7 @@ export default defineConfig({
       dependencies: ['setup'],
       use: {
         ...devices['Desktop Chrome'],
-        baseURL: process.env.UI_BASE_URL,
+        baseURL: requireEnv('UI_BASE_URL'),
         storageState: 'playwright/.auth/user.json',
       },
     },

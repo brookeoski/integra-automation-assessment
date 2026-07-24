@@ -1,10 +1,10 @@
 import { test, expect } from '@playwright/test';
-import { CheckoutPage } from './pages/CheckoutPage';
+import { CheckoutFlow } from './pages/CheckoutFlow';
 import { checkoutCustomer, product } from './checkout.data';
 
 test.describe('Checkout: a logged-in shopper adds a product to their cart and completes checkout', () => {
   test('TC_UI_003 - an authenticated shopper buys a product from start to order confirmation', async ({ page }) => {
-    const checkoutPage = new CheckoutPage(page);
+    const checkoutPage = new CheckoutFlow(page);
 
     await test.step('Land on the Inventory page as an already logged-in shopper', async () => {
       await page.goto('/inventory.html');

@@ -1,40 +1,32 @@
-import { Kafka, RecordMetadata } from 'kafkajs';
 import { test, expect } from '@playwright/test';
-import { buildUniqueMessage, buildUniqueTopic } from './kafka.data';
+import { buildUniqueMessage, testTopic } from './kafka.data';
+import { createKafkaClient } from './kafka.client';
 
-test.describe('Kafka Producer: a uniquely identifiable message is published and acknowledged', () => {
-  test('TC_KAFKA_001 - a valid message is published and acknowledged by the broker', async () => {
-    const kafka = new Kafka({
-      clientId: 'integra-producer-test',
-      brokers: process.env.KAFKA_BROKER_URL!.split(','),
-    });
+test.describe('Kafka Producer: a message is published and acknowledged by the broker', () => {
+  test('TC_KAFKA_001 - one send invocation is acknowledged by the broker', async () => {
+    const kafka = createKafkaClient('integra-producer-test');
     const producer = kafka.producer();
-    const topic = buildUniqueTopic();
+    const topic = testTopic();
     const message = buildUniqueMessage();
 
     await producer.connect();
 
     try {
-      let acknowledgement!: RecordMetadata;
+      await test.step('Publish a uniquely identifiable message to the topic in a single send invocation', async () => {
+        const [acknowledgement] = await producer.send({
+          topic,
+          messages: [{ value: JSON.stringify(message) }],
+        });
 
-      await test.step('Publish a uniquely identifiable message to the topic', async () => {
-        // A newly auto-created topic can briefly report no leader on this
-        // connection; retrying the send absorbs that without an arbitrary wait.
-        await expect(async () => {
-          [acknowledgement] = await producer.send({
-            topic,
-            messages: [{ value: JSON.stringify(message) }],
-          });
-        }).toPass({ timeout: 30_000 });
-
-        await test.step('Expect the broker to acknowledge the publish with a valid offset', () => {
+        await test.step('Expect the broker to acknowledge that send invocation with a valid offset', () => {
           expect(acknowledgement.topicName).toBe(topic);
           expect(acknowledgement.errorCode).toBe(0);
           expect(acknowledgement.baseOffset).toBeDefined();
         });
       });
     } finally {
-      await producer.disconnect();
+      // A disconnect failure here must not mask a primary test failure above.
+      await producer.disconnect().catch(() => {});
     }
   });
 });

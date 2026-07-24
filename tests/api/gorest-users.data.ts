@@ -10,16 +10,20 @@ export interface GorestUserPayload {
   status: Status;
 }
 
-const genders: Gender[] = ['male', 'female'];
-const statuses: Status[] = ['active', 'inactive'];
+export const genderStatusCombinations: Array<{ gender: Gender; status: Status }> = [
+  { gender: 'male', status: 'active' },
+  { gender: 'male', status: 'inactive' },
+  { gender: 'female', status: 'active' },
+  { gender: 'female', status: 'inactive' },
+];
 
-export function buildUniqueUser(): GorestUserPayload {
+export function buildUniqueUser(gender: Gender, status: Status): GorestUserPayload {
   const suffix = randomUUID();
 
   return {
     name: `QA Automation ${suffix.slice(0, 8)}`,
     email: `qa.${suffix}@example.test`,
-    gender: genders[Math.floor(Math.random() * genders.length)],
-    status: statuses[Math.floor(Math.random() * statuses.length)],
+    gender,
+    status,
   };
 }

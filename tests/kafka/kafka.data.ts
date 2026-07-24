@@ -1,4 +1,5 @@
 import { randomUUID } from 'node:crypto';
+import { requireEnv } from '../env';
 
 export interface KafkaTestMessage {
   correlationId: string;
@@ -12,6 +13,6 @@ export function buildUniqueMessage(): KafkaTestMessage {
   };
 }
 
-export function buildUniqueTopic(): string {
-  return `${process.env.KAFKA_TOPIC}-${randomUUID()}`;
+export function testTopic(): string {
+  return requireEnv('KAFKA_TOPIC');
 }
