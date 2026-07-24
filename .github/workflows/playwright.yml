@@ -9,6 +9,8 @@ on:
 
 permissions:
   contents: read
+  pages: write
+  id-token: write
 
 jobs:
   api-tests:
@@ -191,6 +193,14 @@ jobs:
           retention-days: 7
           if-no-files-found: error
 
+      - name: Upload report for GitHub Pages
+        if: |
+          github.event_name == 'workflow_dispatch' ||
+          (github.event_name == 'push' && github.ref == 'refs/heads/main')
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: playwright-report/
+
       - name: Write workflow summary
         if: always()
         run: |
@@ -199,4 +209,34 @@ jobs:
             echo "- API: ${{ needs.api-tests.result }}"
             echo "- UI: ${{ needs.ui-tests.result }}"
             echo "- Kafka: ${{ needs.kafka-tests.result }}"
+            echo ""
+            echo "The merged report is deployed to GitHub Pages only on pushes to \`main\` or manual \`workflow_dispatch\` runs; pull requests produce artifacts only."
           } >> "$GITHUB_STEP_SUMMARY"
+
+  deploy-pages:
+    name: Deploy Report to GitHub Pages
+    needs: merge-reports
+    if: |
+      always() &&
+      needs.merge-reports.result == 'success' &&
+      (
+        github.event_name == 'workflow_dispatch' ||
+        (github.event_name == 'push' && github.ref == 'refs/heads/main')
+      )
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Configure GitHub Pages
+        uses: actions/configure-pages@v5
+
+      - name: Deploy Playwright report
+        id: deployment
+        uses: actions/deploy-pages@v4
+
+      - name: Write deployment summary
+        if: always()
+        run: |
+          echo "## GitHub Pages Deployment" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Report URL: ${{ steps.deployment.outputs.page_url }}" >> "$GITHUB_STEP_SUMMARY"
